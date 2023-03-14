@@ -7,7 +7,7 @@ There are not a lot of working free IMAP email providers what I use when I made 
 
 For any issues file a issue, for any new features you want to contribute you can make a pull request!!
 
-**you have to loop the cashapp.fetchmail() function in order to use efficently**
+**you have to loop the** `cashapp.fetchmail()` **function in order to use efficently**
 
 **Donate:**
 Cashapp:
