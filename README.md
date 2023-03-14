@@ -9,7 +9,7 @@ For any issues file a issue, for any new features you want to contribute you can
 
 **you have to loop the** `cashapp.fetchmail()` **function in order to use efficently**
 
-**To use with gmail, read this [guide](https://github.com/LiteEagle262/cashapp-payment-processor/blob/main/Gmail.md) **
+**To use with gmail, read this** [guide](https://github.com/LiteEagle262/cashapp-payment-processor/blob/main/Gmail.md)
 
 **Donate:**
 Cashapp:
