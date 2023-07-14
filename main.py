@@ -3,11 +3,10 @@ import random
 import string
 from cashapp import cashapp
 
-async def gen_invoice():
-    def generate_invoice_id(length=15):
-        chars = string.ascii_letters + string.digits
-        invoice_id = ''.join(random.choices(chars, k=length))
-        return invoice_id
+def generate_invoice_id(length=15):
+    chars = string.ascii_letters + string.digits
+    invoice_id = ''.join(random.choices(chars, k=length))
+    return invoice_id
 
 invoiceid = geninvoice()
 amount = 20 #20
