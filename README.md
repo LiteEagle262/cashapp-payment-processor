@@ -1,4 +1,9 @@
 # cashapp-payment-processor
+
+# Update:
+Added scraping web recipts wich increases security since you can make sure it was accepted, and through card balance, example in web_recipt.py
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
 A simple python cashapp payment processor (the only one on GitHub that actualy works)
 
 Uses JSON for simple storage, uses re to find values for note and the amount sent!
