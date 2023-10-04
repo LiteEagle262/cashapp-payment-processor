@@ -1,111 +1,86 @@
-import requests #I dont think is needed but will add just incase im wrong cus im posting this at 12 am and im tired asf
-from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
+import requests,re,string,random
 
+your_cash_tag = "$LiteEagl"
 
 '''
-The reason this needs selenium is because cashapp is dynamicly loaded, I know there is a way around this without using selenium
-but it was easier just to use for then since for the project I origionaly made this for that didnt matter.
-'''
+Create a json file called, processed.json and add the below to it
 
-'''
-Make processed_invoices.json file and put the below in file contents
+
 {
     "processed_invoices": [
-        "tpDQfBXChTecddj",
-        "rGjNgEakPNxzwcu"
+        
     ]
 }
+
+
+
+(this just lets the program know what notes have already been processed)
 '''
-
-def is_invoice_processed(invoice_id):
-    with open("processed_invoices.json", "r") as file:
-        data = json.load(file)
-        return invoice_id in data["processed_invoices"]
-
-def add_invoice_to_processed(invoice_id):
-    with open("processed_invoices.json", "r+") as file:
-        data = json.load(file)
-        data["processed_invoices"].append(invoice_id)
-        file.seek(0)
-        json.dump(data, file, indent=4)
-        file.truncate()
 
 def generate_invoice_id(length=15):
     chars = string.ascii_letters + string.digits
     invoice_id = ''.join(random.choices(chars, k=length))
     return invoice_id
 
-def checkpayment(url, amount, invoice_id):
-    if url.startswith("https://cash.app/payments/"):
-        if not is_invoice_processed(invoice_id):
-            driver = webdriver.Chrome()
-            try:
-                driver.get(url)
-                time.sleep(2)
-                html = driver.page_source
-                soup = BeautifulSoup(html, "html.parser")
-                driver.quit()
+def is_invoice_processed(invoice_id: str):
+    with open("processed.json", "r") as file:
+        data = json.load(file)
+        return invoice_id in data["processed_invoices"]
 
-                # Extract payment amount
-                payment_amount_div = soup.find("div", class_="css-c01kul")
-                payment_amount = payment_amount_div.text.strip("$")
-                if float(payment_amount) != float(amount):
-                    return "amount"
+def add_invoice_to_processed(invoice_id: str):
+    with open("processed.json", "r+") as file:
+        data = json.load(file)
+        data["processed_invoices"].append(invoice_id)
+        file.seek(0)
+        json.dump(data, file, indent=4)
+        file.truncate()
 
-                # Extract cashtag
-                cashtag_element = soup.find("h4", class_="css-1enpufc")
-                if cashtag not in cashtag_element.text:
-                    return "cashtag"
-
-                # Extract completion status
-                completion_status_div = soup.find("div", class_="css-1f4nnn0")
-                if completion_status_div.text.strip().lower() != "completed":
-                    return "incomplete"
-
-                # Extract payment source
-                payment_sources = soup.find_all("dd", class_="css-1o1jbxi")
-                if len(payment_sources) >= 2:
-                    payment_source = payment_sources[1].text.strip()
-                    if payment_source.lower() != "cash":
-                        return "source"
-                else:
-                    return "source"
-            
-                # Extract Note
-                note_element = soup.find("p", class_="css-1b5gxht")
-                if note_element is not None:
-                    note = note_element.text.strip().replace("For", "").strip()
-                    if note != invoice_id:
-                        return "note"
-                else:
-                    return "note"
-                
-                add_invoice_to_processed(invoice_id)
-                return True
-            except Exception as e:
-                print("Error: " + str(e))
-                return None
+def check(webrecipt: str, invoice_id: str, amount: float)
+    try:
+        if webrecipt.startswith("https://cash.app/payments/"):
+            scraped_recipt = re.split("/payments/", webrecipt)[1]
+            recipt_id = scraped_recipt.replace("/receipt", "")
+            r = requests.get(f"https://cash.app/receipt-json/f/{recipt_id}").json()
+            #getting note/invoice id
+            note = r['notes']
+            #getting reciver cashtag
+            subtext = r['header_subtext']
+            subtext2 = subtext[10:]
+            cashtag = subtext2.strip()
+            #getting payment value
+            cash_value = r['detail_rows'][0]['value']
+            value = float(cash_value[1:])
+            if is_invoice_processed(invoice_id):
+                return "This invoice has already been processed"        
+            if cashtag not your_cash_tag:
+                return "Wrong Recipient"
+            if invoice_id not note:
+                return "Invalid Note"
+            if amount != value
+                return "You sent the wrong amount"
+            add_invoice_to_processed(invoice_id)
+            return True
         else:
-            return "already"
-    else:
-        return None
+            return "Invalid Web Recipt"
+    except Exception as e:
+        print("Server: Something went wrong: " + e)
+        return "A Server Side error happened, please let the application developers know."
+        
+        
 
-#web recipt, payment amount, invoice id
-payment = checkpayment("webrecipt", 10, generate_invoice_id())
-if payment == True:
-    await print("Payment Confirmed.")
-elif payment == "amount":
-    await print("You sent the incorrect payment amount")
-elif payment == "cashtag":
-    await print("You sent the payment to the incorrect cashtag")
-elif payment == "incomplete":
-    await print("Payment hasnt been accepted yet")
-elif payment == "source":
-    await print("we only accept payments from balance.")
-elif payment == "already":
-    await print("This payment has already been processed.")
-elif payment == "note":
-    await print("The note specified does not apear to be the invoice id.")
+'''
+Simple example of how you would use this below
+'''
+        
+item_amount = float(50)
+invoice_id = generate_invoice_id()
+print("Your Note is: " + invoice_id)
+print("Your Total is" + item_amount)
+print("Please send the payment to: " + your_cash_tag")
+webrecipt = input("Please enter your web recipt once sent :> ")
+print("checking...")
+ok = check(webrecipt, invoice_id, item_amount)
+if ok == True:
+    print("Payment Successfull")
+else:
+    print("Payment was not successfull, reason: " + ok)
