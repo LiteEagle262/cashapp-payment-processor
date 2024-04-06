@@ -52,11 +52,11 @@ def check(webrecipt: str, invoice_id: str, amount: float)
             value = float(cash_value[1:])
             if is_invoice_processed(invoice_id):
                 return "This invoice has already been processed"        
-            if cashtag not your_cash_tag:
+            if cashtag != your_cash_tag:
                 return "Wrong Recipient"
-            if invoice_id not note:
+            if invoice_id != note:
                 return "Invalid Note"
-            if amount != value
+            if amount != value:
                 return "You sent the wrong amount"
             add_invoice_to_processed(invoice_id)
             return True
